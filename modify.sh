@@ -7,16 +7,19 @@ if [ "$1" == "modify" ];  then
      sudo umount ${snapM}${snapN}/$snapR
 
      sudo unsquashfs /var/lib/snapd/snaps/${snapN}_${snapR}.snap
-     echo Now you can modify snap in folder squashfs-root
+     sudo chmod -R 777  squashfs-root
+     mv squashfs-root ${snapN}_${snapR}
+     echo Now you can modify snap in folder ${snapN}_${snapR}
      echo Call me with done parametr to mount snap
+
 elif [ "$1" == "done" ]; then
      read -p "Enter snap name e.g. spotify "  snapN
      read -p "Enter snap Rev e.g. 38 " snapR
 
-     sudo mksquashfs squashfs-root ${snapN}_${snapR}.snap
+     sudo mksquashfs ${snapN}_${snapR} ${snapN}_${snapR}.snap
      sudo cp ${snapN}_${snapR}.snap /var/lib/snapd/snaps/${snapN}_${snapR}.snap
      sudo mount -t squashfs -o ro,nodev,relatime,x-gdu.hide /var/lib/snapd/snaps/${snapN}_${snapR}.snap ${snapM}${snapN}/$snapR
-     sudo rm -r squashfs-root
+     sudo rm -r ${snapN}_${snapR}
      sudo rm ${snapN}_${snapR}.snap
 
 else

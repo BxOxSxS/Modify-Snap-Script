@@ -2,9 +2,11 @@
 mount=/var/lib/snapd/snap/
 
 if [ "$1" == "modify" ];  then
-     read -p "Enter snap name e.g. spotify "  name
-     read -p "Enter snap revision e.g. 38 " rev
-
+     read -p "Enter snap name e.g. spotify. Type cancel to cancel "  name
+     if [ "$name" == "cancel" ]; then exit; fi
+     read -p "Enter snap revision e.g. 38. Type cancel to cancel " rev
+     if [ "$rev" == "cancel" ]; then exit; fi
+     
      sudo unsquashfs /var/lib/snapd/snaps/${name}_${rev}.snap
      sudo chmod -R 777  squashfs-root
      mv squashfs-root ${name}_${rev}
@@ -12,8 +14,10 @@ if [ "$1" == "modify" ];  then
      echo Call me with done parametr to mount snap
 
 elif [ "$1" == "done" ]; then
-     read -p "Enter snap name e.g. spotify "  name
-     read -p "Enter snap rev e.g. 38 " rev
+     read -p "Enter snap name e.g. spotify. Type cancel to cancel "  name
+     if [ "$name" == "cancel" ]; then exit; fi
+     read -p "Enter snap rev e.g. 38. Type cancel to cancel " rev
+     if [ "$rev" == "cancel" ]; then exit; fi
 
      sudo umount ${mount}${name}/$rev
      sudo mksquashfs ${name}_${rev} ${name}_${rev}.snap

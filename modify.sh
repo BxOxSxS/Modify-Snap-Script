@@ -1,5 +1,5 @@
 #!/bin/sh
-mount=/var/lib/snapd/snap/
+mount=/snap/
 
 if [ "$1" == "modify" ];  then
      read -p "Enter snap name e.g. spotify. Type cancel to cancel "  name

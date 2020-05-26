@@ -1,23 +1,51 @@
 #!/bin/sh
 mount=/snap/
-
+opwd=$PWD
 if [ "$1" == "modify" ];  then
-     read -p "Enter snap name e.g. spotify. Type cancel to cancel "  name
-     if [ "$name" == "cancel" ]; then exit; fi
-     read -p "Enter snap revision e.g. 38. Type cancel to cancel " rev
-     if [ "$rev" == "cancel" ]; then exit; fi
-     
-     sudo unsquashfs /var/lib/snapd/snaps/${name}_${rev}.snap
+     cd $mount
+     n=-1
+     for i in $(ls -d */); do {
+          ((n++))
+          printf $n.  | sed "s/0.//" && echo ${i%%/} | sed "/^bin/Id"
+          s[$n]=$i
+          } done
+     echo
+     read -p "Choose snap number " n
+     cd ${s[$n]%%/}
+     n2=0
+     for i in $(ls -d */); do {
+          ((n2++))
+          echo $n2. ${i%%/} | sed "s/$n2. current//"
+          r[$n2]=$i
+          } done
+     read -p "Choose snap revision number " n2
+     snap="${s[$n]%%/}_${r[$n2]%%/}"
+     read -p "You have chosen $snap Continue? [Y/N] " con
+     if [ "$con" == "y" ] || ["$con" == "Y" ]; then echo; else exit 130; fi
+
+     cd "$opwd"
+     sudo unsquashfs /var/lib/snapd/snaps/$snap.snap
      sudo chmod -R 777  squashfs-root
-     mv squashfs-root ${name}_${rev}
-     echo Now you can modify snap in folder ${name}_${rev}
+     mv squashfs-root $snap
+     echo Now you can modify snap in folder $snap
      echo Call me with done parametr to mount snap
 
 elif [ "$1" == "done" ]; then
-     read -p "Enter snap name e.g. spotify. Type cancel to cancel "  name
-     if [ "$name" == "cancel" ]; then exit; fi
-     read -p "Enter snap rev e.g. 38. Type cancel to cancel " rev
-     if [ "$rev" == "cancel" ]; then exit; fi
+     n=0
+     for i in $(ls -d */); do {
+          ((n++))
+          echo $n. ${i%%/}
+          s[$n]=$i
+          } done
+     read -p "Choose snap folder number " n
+     snap="${s[$n]%%/}"
+     echo
+     echo You have chosen $snap it will be umounted so make sure it does not run!
+     read -p "Continue? [Y/N] " con
+     if [ "$con" == "y" ] || ["$con" == "Y" ]; then echo; else exit 130; fi
+
+     rev=$(echo $snap | grep -o "_.*" | cut -c 2-)
+     name=$(echo $snap | grep -o ".*_" | rev | cut -c 2- | rev)
 
      sudo umount ${mount}${name}/$rev
      sudo mksquashfs ${name}_${rev} ${name}_${rev}.snap

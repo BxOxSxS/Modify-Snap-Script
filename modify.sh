@@ -24,7 +24,7 @@ if [ "$1" == "modify" ];  then
      if [ "$con" == "y" ] || ["$con" == "Y" ]; then echo; else exit 130; fi
 
      cd "$opwd"
-     sudo unsquashfs /var/lib/snapd/snaps/$snap.snap
+     sudo unsquashfs -quiet /var/lib/snapd/snaps/$snap.snap
      sudo chmod -R 777  squashfs-root
      mv squashfs-root $snap
      echo Now you can modify snap in folder $snap
@@ -48,7 +48,7 @@ elif [ "$1" == "done" ]; then
      name=$(echo $snap | grep -o ".*_" | rev | cut -c 2- | rev)
 
      sudo umount ${mount}${name}/$rev
-     sudo mksquashfs ${name}_${rev} ${name}_${rev}.snap
+     sudo mksquashfs ${name}_${rev} ${name}_${rev}.snap -quiet
      sudo cp ${name}_${rev}.snap /var/lib/snapd/snaps/${name}_${rev}.snap
      sudo mount -t squashfs -o ro,nodev,relatime,x-gdu.hide /var/lib/snapd/snaps/${name}_${rev}.snap ${mount}${name}/$rev
      sudo rm -r ${name}_${rev}
